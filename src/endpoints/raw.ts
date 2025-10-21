@@ -2,7 +2,7 @@ import { Application, Request, Response } from 'express';
 import { apiMessage, errorMessage } from '../logger';
 import { existsSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { config } from '../../config.json';
+import config from '../../config.json';
 
 export default (app: Application) => {
   app.get('/raw/:name', async (req: Request, res: Response) => {
@@ -17,7 +17,7 @@ export default (app: Application) => {
             'Invalid file name. Please only use English Alphabet characters, 0-9. .jpg .jpeg .png .mp4 are the only supported file types',
         });
       }
-      const { filesFolder } = await import(config);
+      const { filesFolder } = config;
       const dir = resolve(dirname(''), filesFolder);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });

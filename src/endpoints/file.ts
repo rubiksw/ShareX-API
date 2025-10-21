@@ -3,7 +3,7 @@ import { Application, Request, Response } from 'express';
 import { apiMessage, errorMessage } from '../logger';
 import { existsSync, mkdirSync, statSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { config } from '../../config.json';
+import config from '../../config.json';
 
 export default (app: Application) => {
   app.get('/:name', async (req: Request, res: Response) => {
@@ -15,7 +15,7 @@ export default (app: Application) => {
       if (!fileNamePattern.test(fileName)) {
         return res.status(400).render('pages/badName');
       }
-      const { filesFolder } = await import(config);
+      const { filesFolder } = config;
       const dir = resolve(dirname(''), filesFolder);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
