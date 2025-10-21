@@ -1,4 +1,4 @@
-import { url, key, nameHide, maxFileSize } from '../../config.json';
+import config from '../../config.json';
 import { Application, Request, Response } from 'express';
 import { apiMessage, errorMessage } from '../logger';
 import { existsSync, mkdirSync } from 'fs';
@@ -9,7 +9,7 @@ export default (app: Application) => {
   app.post('/save/:name', async (req: Request, res: Response) => {
     try {
       const apiKey = req.headers['api-key'];
-      if (apiKey !== key) {
+      if (apiKey !== config.key) {
         errorMessage('Invalid API key provided');
         return res.status(400).send({ success: false, message: 'Invalid API key' });
       }
@@ -19,7 +19,7 @@ export default (app: Application) => {
         errorMessage('No file provided for upload');
         return res.status(400).send({ success: false, message: 'No file provided' });
       }
-      const fileName = nameHide ? `${generateID(10)}.${req.params.name.split('.')[1]}` : req.params.name;
+      const fileName = config.nameHide ? `${generateID(10)}.${req.params.name.split('.')[1]}` : req.params.name;
       const fileNamePattern = /^[a-zA-Z0-9]+\.(jpg|jpeg|png|mp4)$/;
       if (!fileNamePattern.test(fileName)) {
         return res.status(400).json({
@@ -27,11 +27,11 @@ export default (app: Application) => {
             'Invalid file name. Please only use English Alphabet characters, 0-9. .jpg .jpeg .png .mp4 are the only supported file types',
         });
       }
-      if (file.size > maxFileSize) {
+      if (file.size > config.maxFileSize) {
         errorMessage('File is too big');
         return res.status(400).json({ success: false, message: 'File is too big' });
       }
-      const dir = resolve(dirname(''), 'src/files');
+      const dir = resolve(dirname(''), config.filesFolder);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
@@ -49,9 +49,9 @@ export default (app: Application) => {
       apiMessage(req.path, `File ${fileName} has been saved`);
       return res.status(200).json({
         success: true,
-        message: `File has been saved at ${url}/view/${fileName}`,
-        url: `${url}/${fileName.split('.')[1] === 'mp4' ? 'raw' : 'view'}/${fileName}`,
-        delete: `${url}/delete/${fileName}`,
+        message: `File has been saved at ${config.url}/view/${fileName}`,
+        url: `${config.url}/${fileName.split('.')[1] === 'mp4' ? 'raw' : 'view'}/${fileName}`,
+        delete: `${config.url}/delete/${fileName}`,
       });
     } catch (err) {
       errorMessage(err as string);
