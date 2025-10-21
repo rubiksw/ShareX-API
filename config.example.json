@@ -4,5 +4,6 @@
   "nameHide": true,
   "key": "API_KEY",
   "maxFileSize": 104857600,
-  "allowConfigGen": true
+  "allowConfigGen": true,
+  "filesFolder": "src/files"
 }

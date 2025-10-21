@@ -3,10 +3,10 @@ import { Application, Request, Response } from 'express';
 import { apiMessage, errorMessage } from '../logger';
 import { existsSync, mkdirSync, statSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { url } from '../../config.json';
+import { config } from '../../config.json';
 
 export default (app: Application) => {
-  app.get('/view/:name', async (req: Request, res: Response) => {
+  app.get('/:name', async (req: Request, res: Response) => {
     try {
       const fileName = req.params.name;
       if (fileName === 'favicon.ico') return;
@@ -15,7 +15,8 @@ export default (app: Application) => {
       if (!fileNamePattern.test(fileName)) {
         return res.status(400).render('pages/badName');
       }
-      const dir = resolve(dirname(''), 'src/files');
+      const { filesFolder } = await import(config);
+      const dir = resolve(dirname(''), filesFolder);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
@@ -25,22 +26,7 @@ export default (app: Application) => {
         return res.status(400).render('pages/missingFile');
       }
       apiMessage(req.path, `File ${fileName} found`);
-      const stats = statSync(filePath);
-      return res.render('pages/file', {
-        data: {
-          name: fileName.split('.')[0],
-          fileExtension: fileName.split('.')[1],
-          timestamp: {
-            raw: stats.birthtimeMs,
-            unix: stats.birthtimeMs,
-            utc: getTime(stats.birthtimeMs, 'UTC'),
-          },
-          size: getFileSize(stats.size),
-        },
-        img: `${url}/raw/${fileName}`,
-        getTime: getTime,
-        getDate: getDate,
-      });
+      return res.sendFile(filePath);
     } catch (err) {
       errorMessage(err as string);
       return res.status(500).send({ success: false, message: 'Internal server error' });
