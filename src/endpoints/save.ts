@@ -50,8 +50,8 @@ export default (app: Application) => {
       return res.status(200).json({
         success: true,
         message: `File has been saved at ${config.url}/${fileName}`,
-        url: `${config.url}/${fileName}`,
-        delete: `${config.url}/delete/${fileName}`,
+        url: `https://${config.url}/${fileName}`,
+        delete: `https://${config.url}/delete/${fileName}`,
       });
     } catch (err) {
       errorMessage(err as string);
